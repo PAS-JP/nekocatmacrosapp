@@ -28,10 +28,9 @@ jobs:
           rustup component add rustfmt || true
 
       - name: Install tools
-        run: |
-          cargo install cargo-deny --force
-          cargo install cargo-nextest --force
-          cargo install cargo-audit --force
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny,cargo-nextest,cargo-audit
 
       - name: Check formatting
         run: cargo fmt -- --check
