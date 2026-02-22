@@ -1,8 +1,21 @@
 #![cfg(feature = "parser")]
 use nekocatmacrosapp::Parser;
-use rkyv::{Archive, Deserialize, Serialize};
+use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Parser, Archive, Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[derive(
+    Parser,
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    Serialize,
+    Deserialize,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    Clone,
+)]
 #[rkyv(compare(PartialEq), derive(Debug))]
 struct User {
     name: String,
@@ -12,7 +25,19 @@ struct User {
     bool: bool,
 }
 
-#[derive(Parser, Archive, Serialize, Deserialize, Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(
+    Parser,
+    Archive,
+    RkyvSerialize,
+    RkyvDeserialize,
+    Serialize,
+    Deserialize,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    Clone,
+)]
 #[rkyv(compare(PartialEq), derive(Debug))]
 pub struct Friend {
     name: String,

@@ -54,12 +54,12 @@ pub fn up_migrations(input: &DeriveInput) -> TokenStream {
     quote! {
         impl #impl_block {
             pub async fn up_migrations_temporary_table_if_not_exists(
-                client: &tokio_postgres::Client
+                client: &impl tokio_postgres::GenericClient
             ) -> Result<u64, tokio_postgres::Error> {
                 client.execute(#temporary_table_sql,  &[]).await
             }
             pub async fn up_migrations_table_if_not_exists(
-                client: &tokio_postgres::Client
+                client: &impl tokio_postgres::GenericClient
             ) -> Result<u64, tokio_postgres::Error> {
                 client.execute(#table_sql,  &[]).await
             }

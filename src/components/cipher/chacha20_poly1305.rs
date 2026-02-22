@@ -13,7 +13,7 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
     } = get_opt(&field.attrs);
     let chacha_secret_key = match chacha_secret_key {
         Some(ts) => quote! { #ts },
-        None => panic!("#[opt(chacha_secret_key = Some(String::from(\"Must be provided\")))]"),
+        None => quote! { "SECRET" },
     };
     quote! {
         impl #impl_block {
@@ -27,19 +27,18 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
                 use chacha20poly1305::aead::generic_array::GenericArray;
                 use chacha20poly1305::aead::generic_array::typenum::{U32, U12};
 
-                let key: Vec<u8> = #chacha_secret_key
-                    .as_ref()
-                    .map(|s| hex::decode(s).unwrap_or_default())
-                    .unwrap_or_default();
-                let key: [u8; 32] = key
-                    .as_slice()
+                let secret_hex = std::env::var(#chacha_secret_key)
+                    .map_err(|_| format!("Environment variable {} not found", #chacha_secret_key))?;
+                let key_bytes = hex::decode(&secret_hex)
+                    .map_err(|e| format!("Invalid hex key: {}", e))?;
+                let key_array: [u8; 32] = key_bytes
                     .try_into()
-                    .map_err(|e| format!("invalid key length: {e}"))?;
-                let nonce: [u8; 12] = nonce
+                    .map_err(|_| "AES-256 key must be exactly 32 bytes (64 hex characters)")?;
+                 let nonce: [u8; 12] = nonce
                     .try_into()
                     .map_err(|e| format!("invalid nonce length: {e}"))?;
 
-                let key_ga = *GenericArray::from_slice(&key);
+                let key_ga = *GenericArray::from_slice(&key_array);
                 let nonce_ga = *GenericArray::from_slice(&nonce);
 
                 Ok((key_ga, nonce_ga))

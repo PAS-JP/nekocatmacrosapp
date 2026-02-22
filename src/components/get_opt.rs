@@ -24,6 +24,8 @@ pub struct Opt {
     pub chacha_secret_key: Option<TokenStream>,
     #[cfg(feature = "argon")]
     pub argon2_params: Option<TokenStream>,
+    #[cfg(feature = "argon")]
+    pub argon2_secret_pepper: Option<TokenStream>,
     #[cfg(feature = "sql")]
     pub sql: Option<TokenStream>,
 }
@@ -102,12 +104,19 @@ pub fn get_opt(attributes: &Vec<Attribute>) -> Opt {
                                 opt.argon2_params = Some(quote! { #expr });
                             }
                         }
+                        #[cfg(feature = "cipher")]
+                        "argon2_secret_pepper" => {
+                            if let Ok(expr) = meta.value()?.parse::<syn::Expr>() {
+                                opt.argon2_secret_pepper = Some(quote! { #expr });
+                            }
+                        }
                         #[cfg(feature = "sql")]
                         "sql" => {
                             if let Ok(expr) = meta.value()?.parse::<syn::Expr>() {
                                 opt.sql = Some(quote! { #expr });
                             }
                         }
+                        //#[cfg(feature = "sql")]
                         /*#[cfg(feature = "path2enum")]
                         "path" => {
                             if let Ok(expr) = meta.value()?.parse::<syn::Expr>() {

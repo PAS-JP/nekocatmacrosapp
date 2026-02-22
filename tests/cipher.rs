@@ -2,14 +2,15 @@
 use nekocatmacrosapp::Cipher;
 use rkyv::{Archive, Deserialize, Serialize};
 
-const SECRET: &str = "50e637e1245ee65705409472d7bbf32a27e760ef332d4a19aebca96328a53cfb";
+const SECRET: &str = "SECRET_ENV";
 
 #[derive(Cipher, Archive, Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[rkyv(compare(PartialEq), derive(Debug))]
 pub struct Secret {
     #[opt(
-        aes_secret_key=Some(SECRET.to_string()),
-        chacha_secret_key=Some(SECRET.to_string())
+        aes_secret_key = SECRET,
+        argon2_secret_pepper = SECRET,
+        chacha_secret_key = SECRET
     )]
     pwd: String,
 }
@@ -17,21 +18,19 @@ pub struct Secret {
 #[derive(Cipher, Archive, Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[rkyv(compare(PartialEq), derive(Debug))]
 pub struct User {
-    #[opt(
-        aes_secret_key=Some(SECRET.to_string()),
-        chacha_secret_key=Some(SECRET.to_string())
-    )]
     name: String,
 
     #[opt(
-        aes_secret_key=Some(SECRET.to_string()),
-        chacha_secret_key=Some(SECRET.to_string())
+       aes_secret_key = SECRET,
+        argon2_secret_pepper = SECRET,
+        chacha_secret_key = SECRET
     )]
     password: String,
 }
 
 #[test]
 fn aes_256_gcm_siv_user_encrypt_and_decrypt_name_and_password() {
+    dotenvy::dotenv().unwrap();
     let user = User {
         name: String::from("aes_name"),
         password: String::from("aes_password"),
@@ -55,6 +54,7 @@ fn aes_256_gcm_siv_user_encrypt_and_decrypt_name_and_password() {
 
 #[test]
 fn chacha20_poly1305_user_encrypt_and_decrypt_name_and_password() {
+    dotenvy::dotenv().unwrap();
     let user = User {
         name: String::from("chacha_name"),
         password: String::from("chacha_password"),
@@ -83,6 +83,7 @@ fn chacha20_poly1305_user_encrypt_and_decrypt_name_and_password() {
 
 #[test]
 fn argon2_hash_and_verify_password() {
+    dotenvy::dotenv().unwrap();
     let user = User {
         name: "example".to_string(),
         password: "supersecret".to_string(),

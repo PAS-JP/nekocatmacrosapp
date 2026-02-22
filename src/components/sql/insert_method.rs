@@ -28,7 +28,7 @@ pub fn sql_insert_method(
         impl #impl_block {
             pub async fn sql_insert(
                 &self,
-                client: &tokio_postgres::Client
+                client: &impl tokio_postgres::GenericClient
             ) -> Result<u64, tokio_postgres::Error> {
                 client.execute(#sql_insert, &[#(#insert_params_tokens),*]).await
             }

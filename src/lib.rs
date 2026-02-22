@@ -78,7 +78,7 @@ pub fn sql(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     generate_into.into()
 }
 
-//#[cfg(feature = "obf")]
+#[cfg(feature = "path2enum")]
 #[proc_macro_attribute]
 /// Procedural macro `path2enum` — generates enums from real filesystem paths.
 ///

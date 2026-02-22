@@ -12,9 +12,18 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
         Some(ts) => quote! { #ts },
         None => {
             quote! {
-                argon2::Params::new(32 * 1024, 3, 1, 32.into()).map_err(|e| e.to_string())
+               argon2::Params::new(32 * 1024, 3, 1, Some(32))
+                    .map_err(|e: argon2::Error| e.to_string())
             }
         }
+    };
+    let Opt {
+        argon2_secret_pepper,
+        ..
+    } = get_opt(&field.attrs);
+    let argon2_secret_pepper = match argon2_secret_pepper {
+        Some(ts) => quote! { #ts },
+        None => quote! { "SECRET" },
     };
     quote! {
         impl #impl_block {
@@ -33,7 +42,16 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
                 use argon2::password_hash::rand_core::OsRng;
 
                 let params = Self::#argon2_params_ident()?;
-                let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+                let pepper = std::env::var(#argon2_secret_pepper).expect("Argon2 env pepper must be provided");
+                let secret = pepper.as_bytes();
+
+               let argon2 = Argon2::new_with_secret(
+                    secret,
+                    Algorithm::Argon2id,
+                    Version::V0x13,
+                    params
+                ).map_err(|e| e.to_string())?;
+
                 let salt = SaltString::generate(&mut OsRng);
                 let password_bytes: &[u8] = self.#field_ident.as_ref();
 
@@ -44,15 +62,23 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
                 Ok(password_hash.to_string())
             }
 
-            pub fn #argon2_verify_ident(hash: String, password: impl Into<Vec<u8>>) -> Result<bool, String> {
+           pub fn #argon2_verify_ident(hash: String, password: impl Into<Vec<u8>>) -> Result<bool, String> {
                 use argon2::{Argon2, Algorithm, Version};
-                use argon2::password_hash::SaltString;
                 use argon2::PasswordVerifier;
                 use argon2::PasswordHash;
-                use argon2::PasswordHasher;
 
                 let params = Self::#argon2_params_ident()?;
-                let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+
+                let pepper = std::env::var(#argon2_secret_pepper)
+                    .map_err(|_| format!("Argon2 env pepper {} must be provided", #argon2_secret_pepper))?;
+                let secret = pepper.as_bytes();
+
+                let argon2 = Argon2::new_with_secret(
+                    secret,
+                    Algorithm::Argon2id,
+                    Version::V0x13,
+                    params
+                ).map_err(|e| e.to_string())?;
 
                 let parsed = PasswordHash::new(&hash).map_err(|e| e.to_string())?;
 

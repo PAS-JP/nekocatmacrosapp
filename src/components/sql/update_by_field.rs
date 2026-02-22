@@ -66,7 +66,7 @@ pub fn sql_update_by_field(
         impl #impl_block {
             pub async fn #upd_fn(
                 &self,
-                client: &tokio_postgres::Client
+                client: &impl tokio_postgres::GenericClient
             ) -> Result<u64, tokio_postgres::Error> {
                 client.execute(#sql_update_by, &[#(#vec_tokens),*]).await
             }

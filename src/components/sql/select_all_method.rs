@@ -19,7 +19,7 @@ pub fn sql_select_all_method(
         impl #impl_block {
             pub async fn sql_select_all(
                 &self,
-                client: &tokio_postgres::Client
+                client: &impl tokio_postgres::GenericClient
             ) -> Result<Vec<tokio_postgres::Row>, tokio_postgres::Error> {
                 client.query(#sql_select_all, &[]).await
             }
