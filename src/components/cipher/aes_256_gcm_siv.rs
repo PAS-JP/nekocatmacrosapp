@@ -16,14 +16,14 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
     quote! {
         impl #impl_block {
             fn #aes_256_gcm_siv_key_and_nonce_ga_ident(nonce: &[u8]) -> Result<(
-                    aes_gcm_siv::aead::generic_array::GenericArray<u8, aes_gcm_siv::aead::generic_array::typenum::U32>,
-                    aes_gcm_siv::aead::generic_array::GenericArray<u8, aes_gcm_siv::aead::generic_array::typenum::U12>
+                    nekocat::aes_gcm_siv::aead::generic_array::GenericArray<u8, nekocat::aes_gcm_siv::aead::generic_array::typenum::U32>,
+                    nekocat::aes_gcm_siv::aead::generic_array::GenericArray<u8, nekocat::aes_gcm_siv::aead::generic_array::typenum::U12>
                 ),
                 String> {
-                use aes_gcm_siv::aead::{Aead, KeyInit};
+                use nekocat::aes_gcm_siv::aead::{Aead, KeyInit};
                 use std::convert::TryInto;
-                use aes_gcm_siv::aead::generic_array::GenericArray;
-                use aes_gcm_siv::aead::generic_array::typenum::{U32, U12};
+                use nekocat::aes_gcm_siv::aead::generic_array::GenericArray;
+                use nekocat::aes_gcm_siv::aead::generic_array::typenum::{U32, U12};
 
                 let secret_hex = std::env::var(#aes_secret_key)
                     .map_err(|_| format!("Environment variable {} not found", #aes_secret_key))?;
@@ -44,7 +44,7 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
 
               pub fn #aes_256_gcm_siv_encrypt_ident(&self) -> Result<(Vec<u8>, Vec<u8>), String>
             {
-                use aes_gcm_siv::aead::{Aead, KeyInit};
+                use nekocat::aes_gcm_siv::aead::{Aead, KeyInit};
                 use rand::RngExt;
                 use rkyv::rancor::Error as RkyvError;
 
@@ -55,7 +55,7 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
                     .map(|v| v.into())?;
 
                 let (key, nonce) = Self::#aes_256_gcm_siv_key_and_nonce_ga_ident(&nonce_rand)?;
-                let ciphertext = aes_gcm_siv::Aes256GcmSiv::new(&key)
+                let ciphertext = nekocat::aes_gcm_siv::Aes256GcmSiv::new(&key)
                     .encrypt(&nonce, plaintext.as_slice())
                     .map_err(|err| err.to_string())?;
                 Ok((ciphertext, nonce_rand))
@@ -63,11 +63,11 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
 
             pub fn #aes_256_gcm_siv_decrypt_ident(ciphertext: Vec<u8>, nonce: Vec<u8>) -> Result<#field_type, String>
             {
-                use aes_gcm_siv::aead::{Aead, KeyInit};
+                use nekocat::aes_gcm_siv::aead::{Aead, KeyInit};
                 use rkyv::rancor::Error as RkyvError;
 
                 let (key, nonce) = Self::#aes_256_gcm_siv_key_and_nonce_ga_ident(&nonce)?;
-                let decrypted = aes_gcm_siv::Aes256GcmSiv::new(&key)
+                let decrypted = nekocat::aes_gcm_siv::Aes256GcmSiv::new(&key)
                     .decrypt(&nonce, ciphertext.as_ref())
                     .map_err(|err| err.to_string())?;
 

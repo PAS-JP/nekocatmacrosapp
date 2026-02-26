@@ -12,8 +12,8 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
         Some(ts) => quote! { #ts },
         None => {
             quote! {
-               argon2::Params::new(32 * 1024, 3, 1, Some(32))
-                    .map_err(|e: argon2::Error| e.to_string())
+               nekocat::argon2::Params::new(32 * 1024, 3, 1, Some(32))
+                    .map_err(|e: nekocat::argon2::Error| e.to_string())
             }
         }
     };
@@ -35,11 +35,11 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
             where
                 #field_type: AsRef<[u8]>,
             {
-                use argon2::{Argon2, Algorithm, Version};
-                use argon2::password_hash::SaltString;
-                use argon2::PasswordHash;
-                use argon2::PasswordHasher;
-                use argon2::password_hash::rand_core::OsRng;
+                use nekocat::argon2::{Argon2, Algorithm, Version};
+                use nekocat::argon2::password_hash::SaltString;
+                use nekocat::argon2::PasswordHash;
+                use nekocat::argon2::PasswordHasher;
+                use nekocat::argon2::password_hash::rand_core::OsRng;
 
                 let params = Self::#argon2_params_ident()?;
                 let pepper = std::env::var(#argon2_secret_pepper).expect("Argon2 env pepper must be provided");
@@ -63,9 +63,9 @@ pub fn cipher_argon2(input: &DeriveInput, field: &Field) -> TokenStream {
             }
 
            pub fn #argon2_verify_ident(hash: String, password: impl Into<Vec<u8>>) -> Result<bool, String> {
-                use argon2::{Argon2, Algorithm, Version};
-                use argon2::PasswordVerifier;
-                use argon2::PasswordHash;
+                use nekocat::argon2::{Argon2, Algorithm, Version};
+                use nekocat::argon2::PasswordVerifier;
+                use nekocat::argon2::PasswordHash;
 
                 let params = Self::#argon2_params_ident()?;
 

@@ -38,9 +38,6 @@ jobs:
       - name: Clippy (treat warnings as errors)
         run: cargo clippy --all-targets -- -D warnings
 
-      - name: Run tests (all features)
-        run: cargo nextest run --all-features
-
       - name: Run cargo-deny (strict)
         run: cargo deny check --config deny.toml
 

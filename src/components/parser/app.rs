@@ -86,12 +86,12 @@ pub fn parser_app(input: &DeriveInput) -> proc_macro2::TokenStream {
         .collect();
 
     quote! {
-        #[derive(Debug, PartialEq, Eq, Hash, Clone, serde::Serialize, serde::Deserialize, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)]
+        #[derive(Debug, PartialEq, Eq, Hash, Clone, nekocat::serde::Serialize, nekocat::serde::Deserialize, nekocat::rkyv::Archive, nekocat::rkyv::Serialize, nekocat::rkyv::Deserialize)]
         #[rkyv(compare(PartialEq), derive(Debug))]
         pub enum #key_enum_ident {
             #(#field_enum_idents),*
         }
-        #[derive(Debug, PartialEq, Eq, Hash, Clone, serde::Serialize, serde::Deserialize, rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)]
+        #[derive(Debug, PartialEq, Eq, Hash, Clone, nekocat::serde::Serialize, nekocat::serde::Deserialize, nekocat::rkyv::Archive, nekocat::rkyv::Serialize, nekocat::rkyv::Deserialize)]
         #[rkyv(compare(PartialEq), derive(Debug))]
         pub enum #value_enum_ident {
             #(#field_enum_idents(#field_types)),*
@@ -110,14 +110,14 @@ pub fn parser_app(input: &DeriveInput) -> proc_macro2::TokenStream {
             }
 
             pub fn to_json(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-                Ok(serde_json::to_string(self)?)
+                Ok(nekocat::serde_json::to_string(self)?)
             }
 
             pub fn from_json(json: &str) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-                Ok(serde_json::from_str(json)?)
+                Ok(nekocat::serde_json::from_str(json)?)
             }
 
-            pub fn to_json_value(self) -> serde_json::Value {
+            pub fn to_json_value(self) -> nekocat::serde_json::Value {
                 self.into()
             }
 
@@ -203,7 +203,7 @@ pub fn parser_app(input: &DeriveInput) -> proc_macro2::TokenStream {
             type Error = Box<dyn std::error::Error + Send + Sync>;
 
             fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> {
-                let value = rkyv::from_bytes::<#impl_block, rkyv::rancor::Error>(&bytes)
+                let value = nekocat::rkyv::from_bytes::<#impl_block, nekocat::rkyv::rancor::Error>(&bytes)
                     .map_err(|e| Box::new(e) as Self::Error)?;
                 Ok(value)
             }
@@ -213,23 +213,23 @@ pub fn parser_app(input: &DeriveInput) -> proc_macro2::TokenStream {
             type Error = Box<dyn std::error::Error + Send + Sync>;
 
             fn try_into(self) -> Result<Vec<u8>, Self::Error> {
-                let aligned = rkyv::to_bytes::<rkyv::rancor::Error>(&self)
+                let aligned = nekocat::rkyv::to_bytes::<nekocat::rkyv::rancor::Error>(&self)
                     .map_err(|e| Box::new(e) as Self::Error)?;
                 Ok(aligned.into())
             }
         }
 
-        impl From<#impl_block> for serde_json::Value {
+        impl From<#impl_block> for nekocat::serde_json::Value {
             fn from(this: #impl_block) -> Self {
-                serde_json::json!(this)
+                nekocat::serde_json::json!(this)
             }
         }
 
-        impl TryFrom<serde_json::Value> for #impl_block {
+        impl TryFrom<nekocat::serde_json::Value> for #impl_block {
             type Error = Box<dyn std::error::Error + Send + Sync>;
 
-            fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-                Ok(serde_json::from_value(value)?)
+            fn try_from(value: nekocat::serde_json::Value) -> Result<Self, Self::Error> {
+                Ok(nekocat::serde_json::from_value(value)?)
             }
         }
 

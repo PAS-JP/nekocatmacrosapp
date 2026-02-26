@@ -18,14 +18,14 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
     quote! {
         impl #impl_block {
             fn #chacha20_poly1305_key_and_nonce_ga_ident(nonce: &[u8]) -> Result<(
-                    chacha20poly1305::aead::generic_array::GenericArray<u8, chacha20poly1305::aead::generic_array::typenum::U32>,
-                    chacha20poly1305::aead::generic_array::GenericArray<u8, chacha20poly1305::aead::generic_array::typenum::U12>
+                    nekocat::chacha20poly1305::aead::generic_array::GenericArray<u8, nekocat::chacha20poly1305::aead::generic_array::typenum::U32>,
+                    nekocat::chacha20poly1305::aead::generic_array::GenericArray<u8, nekocat::chacha20poly1305::aead::generic_array::typenum::U12>
                 ),
                 String> {
-                use chacha20poly1305::aead::{Aead, KeyInit};
+                use nekocat::chacha20poly1305::aead::{Aead, KeyInit};
                 use std::convert::TryInto;
-                use chacha20poly1305::aead::generic_array::GenericArray;
-                use chacha20poly1305::aead::generic_array::typenum::{U32, U12};
+                use nekocat::chacha20poly1305::aead::generic_array::GenericArray;
+                use nekocat::chacha20poly1305::aead::generic_array::typenum::{U32, U12};
 
                 let secret_hex = std::env::var(#chacha_secret_key)
                     .map_err(|_| format!("Environment variable {} not found", #chacha_secret_key))?;
@@ -46,7 +46,7 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
 
               pub fn #chacha20_poly1305_encrypt_ident(&self) -> Result<(Vec<u8>, Vec<u8>), String>
             {
-                use chacha20poly1305::aead::{Aead, KeyInit};
+                use nekocat::chacha20poly1305::aead::{Aead, KeyInit};
                 use rand::RngExt;
                 use rkyv::rancor::Error as RkyvError;
 
@@ -60,7 +60,7 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
                 let (key, nonce) =
                     Self::#chacha20_poly1305_key_and_nonce_ga_ident(&nonce_rand)?;
 
-                let ciphertext = chacha20poly1305::ChaCha20Poly1305::new(&key)
+                let ciphertext = nekocat::chacha20poly1305::nekocat::ChaCha20Poly1305::new(&key)
                     .encrypt(&nonce, plaintext.as_slice())
                     .map_err(|err| err.to_string())?;
 
@@ -72,14 +72,14 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
                 nonce: Vec<u8>
             ) -> Result<#field_type, String>
             {
-                use chacha20poly1305::aead::{Aead, KeyInit};
+                use nekocat::chacha20poly1305::aead::{Aead, KeyInit};
                 use rkyv::rancor::Error as RkyvError;
 
                 let (key, nonce) =
                     Self::#chacha20_poly1305_key_and_nonce_ga_ident(&nonce)?;
 
                 let decrypted_bytes =
-                    chacha20poly1305::ChaCha20Poly1305::new(&key)
+                    nekocat::chacha20poly1305::nekocat::ChaCha20Poly1305::new(&key)
                         .decrypt(&nonce, ciphertext.as_ref())
                         .map_err(|err| err.to_string())?;
 

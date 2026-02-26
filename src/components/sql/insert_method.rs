@@ -12,7 +12,7 @@ pub fn sql_insert_method(
         .iter()
         .map(|f| {
             let ident = f.ident.as_ref().unwrap();
-            quote! { (&self.#ident) as &(dyn tokio_postgres::types::ToSql + Sync) }
+            quote! { (&self.#ident) as &(dyn nekocat::sql_ext::tokio_postgres::types::ToSql + Sync) }
         })
         .collect();
     let columns_vec: Vec<String> = fields
@@ -28,8 +28,8 @@ pub fn sql_insert_method(
         impl #impl_block {
             pub async fn sql_insert(
                 &self,
-                client: &impl tokio_postgres::GenericClient
-            ) -> Result<u64, tokio_postgres::Error> {
+                client: &impl nekocat::sql_ext::tokio_postgres::GenericClient
+            ) -> Result<u64, nekocat::sql_ext::tokio_postgres::Error> {
                 client.execute(#sql_insert, &[#(#insert_params_tokens),*]).await
             }
         }

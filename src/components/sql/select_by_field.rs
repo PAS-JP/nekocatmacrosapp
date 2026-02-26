@@ -23,8 +23,8 @@ pub fn sql_select_by_field(
         impl #impl_block {
             pub async fn #sel_fn(
                 &self,
-                client: &impl tokio_postgres::GenericClient
-            ) -> Result<Vec<tokio_postgres::Row>, tokio_postgres::Error> {
+                client: &impl nekocat::sql_ext::tokio_postgres::GenericClient
+            ) -> Result<Vec<nekocat::sql_ext::tokio_postgres::Row>, nekocat::sql_ext::tokio_postgres::Error> {
                 client.query(#sql_select_by, &[&self.#ident]).await
             }
         }

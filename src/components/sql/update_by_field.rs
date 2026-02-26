@@ -40,7 +40,7 @@ pub fn sql_update_by_field(
                 .find(|ff| ff.ident.as_ref().unwrap() == col.as_str())
                 .map(|ff| {
                     let id = ff.ident.as_ref().unwrap();
-                    quote! { (&self.#id) as &(dyn tokio_postgres::types::ToSql + Sync) }
+                    quote! { (&self.#id) as &(dyn nekocat::sql_ext::tokio_postgres::types::ToSql + Sync) }
                 })
                 .unwrap();
             toks.push(tok);
@@ -56,7 +56,9 @@ pub fn sql_update_by_field(
     };
 
     let mut vec_tokens = set_param_tokens.clone();
-    vec_tokens.push(quote! { (&self.#ident) as &(dyn tokio_postgres::types::ToSql + Sync) });
+    vec_tokens.push(
+        quote! { (&self.#ident) as &(dyn nekocat::sql_ext::tokio_postgres::types::ToSql + Sync) },
+    );
 
     let sql_update_by =
         format!("UPDATE {table_name} SET {set_clause} WHERE {field_name} = ${where_idx}");
@@ -66,8 +68,8 @@ pub fn sql_update_by_field(
         impl #impl_block {
             pub async fn #upd_fn(
                 &self,
-                client: &impl tokio_postgres::GenericClient
-            ) -> Result<u64, tokio_postgres::Error> {
+                client: &impl nekocat::sql_ext::tokio_postgres::GenericClient
+            ) -> Result<u64, nekocat::sql_ext::tokio_postgres::Error> {
                 client.execute(#sql_update_by, &[#(#vec_tokens),*]).await
             }
         }

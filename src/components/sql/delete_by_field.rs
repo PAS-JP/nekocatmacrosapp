@@ -14,8 +14,8 @@ pub fn sql_delete_by_field(input: &DeriveInput, field: &Field) -> TokenStream {
         impl #impl_block {
             pub async fn #del_fn(
                 &self,
-                client: &impl tokio_postgres::GenericClient
-            ) -> Result<u64, tokio_postgres::Error> {
+                client: &impl nekocat::sql_ext::tokio_postgres::GenericClient
+            ) -> Result<u64, nekocat::sql_ext::tokio_postgres::Error> {
                 client.execute(#sql_delete_by, &[&self.#ident]).await
             }
         }
