@@ -42,10 +42,10 @@ pub fn build_method(input: &DeriveInput, field: &Field) -> TokenStream {
         };
 
         quote! {
-            static #re_ident: ::std::sync::OnceLock<::regex::Regex> = ::std::sync::OnceLock::new();
-            fn #get_re_fn() -> &'static ::regex::Regex {
+            static #re_ident: ::std::sync::OnceLock<nekocat::regex::Regex> = ::std::sync::OnceLock::new();
+            fn #get_re_fn() -> &'static nekocat::regex::Regex {
                 #re_ident.get_or_init(|| {
-                    ::regex::Regex::new(#pattern_ts)
+                    nekocat::regex::Regex::new(#pattern_ts)
                         .expect("invalid regex literal")
                 })
             }
