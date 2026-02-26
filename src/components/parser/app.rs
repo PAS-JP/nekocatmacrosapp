@@ -87,12 +87,12 @@ pub fn parser_app(input: &DeriveInput) -> proc_macro2::TokenStream {
 
     quote! {
         #[derive(Debug, PartialEq, Eq, Hash, Clone, nekocat::serde::Serialize, nekocat::serde::Deserialize, nekocat::rkyv::Archive, nekocat::rkyv::Serialize, nekocat::rkyv::Deserialize)]
-        #[rkyv(compare(PartialEq), derive(Debug))]
+        #[nekocat::rkyv(compare(PartialEq), derive(Debug))]
         pub enum #key_enum_ident {
             #(#field_enum_idents),*
         }
         #[derive(Debug, PartialEq, Eq, Hash, Clone, nekocat::serde::Serialize, nekocat::serde::Deserialize, nekocat::rkyv::Archive, nekocat::rkyv::Serialize, nekocat::rkyv::Deserialize)]
-        #[rkyv(compare(PartialEq), derive(Debug))]
+        #[nekocat::rkyv(compare(PartialEq), derive(Debug))]
         pub enum #value_enum_ident {
             #(#field_enum_idents(#field_types)),*
         }

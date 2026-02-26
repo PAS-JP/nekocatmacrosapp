@@ -47,13 +47,13 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
               pub fn #chacha20_poly1305_encrypt_ident(&self) -> Result<(Vec<u8>, Vec<u8>), String>
             {
                 use nekocat::chacha20poly1305::aead::{Aead, KeyInit};
-                use rand::RngExt;
-                use rkyv::rancor::Error as RkyvError;
+                use nekocat::crypto_utils::rand::RngExt;
+                use nekocat::rkyv::rancor::Error as RkyvError;
 
                 let value = &self.#field_ident;
-                let nonce_rand = rand::rng().random::<[u8; 12]>().to_vec();
+                let nonce_rand = nekocat::crypto_utils::rand::rng().random::<[u8; 12]>().to_vec();
 
-                let plaintext: Vec<u8> = rkyv::to_bytes::<RkyvError>(value)
+                let plaintext: Vec<u8> = nekocat::rkyv::to_bytes::<RkyvError>(value)
                     .map_err(|e| e.to_string())
                     .map(|v| v.into())?;
 
@@ -73,7 +73,7 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
             ) -> Result<#field_type, String>
             {
                 use nekocat::chacha20poly1305::aead::{Aead, KeyInit};
-                use rkyv::rancor::Error as RkyvError;
+                use nekocat::rkyv::rancor::Error as RkyvError;
 
                 let (key, nonce) =
                     Self::#chacha20_poly1305_key_and_nonce_ga_ident(&nonce)?;
@@ -83,14 +83,14 @@ pub fn cipher_chacha20_poly1305(input: &DeriveInput, field: &Field) -> TokenStre
                         .decrypt(&nonce, ciphertext.as_ref())
                         .map_err(|err| err.to_string())?;
 
-                let archived = rkyv::access::<
-                    <#field_type as rkyv::Archive>::Archived,
+                let archived = nekocat::rkyv::access::<
+                    <#field_type as nekocat::rkyv::Archive>::Archived,
                     RkyvError
                 >(&decrypted_bytes[..])
                     .map_err(|e| e.to_string())?;
 
                 let decoded: #field_type =
-                    rkyv::deserialize::<#field_type, RkyvError>(archived)
+                    nekocat::rkyv::deserialize::<#field_type, RkyvError>(archived)
                         .map_err(|e| e.to_string())?;
 
                 Ok(decoded)

@@ -45,8 +45,8 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
               pub fn #aes_256_gcm_siv_encrypt_ident(&self) -> Result<(Vec<u8>, Vec<u8>), String>
             {
                 use nekocat::aes_gcm_siv::aead::{Aead, KeyInit};
-                use rand::RngExt;
-                use rkyv::rancor::Error as RkyvError;
+                use nekocat::crypto_utils::rand::RngExt;
+                use nekocat::rkyv::rancor::Error as RkyvError;
 
                 let value = &self.#field_ident;
                 let nonce_rand = rand::rng().random::<[u8; 12]>().to_vec();
@@ -64,20 +64,20 @@ pub fn cipher_aes_256_gcm_siv(input: &DeriveInput, field: &Field) -> TokenStream
             pub fn #aes_256_gcm_siv_decrypt_ident(ciphertext: Vec<u8>, nonce: Vec<u8>) -> Result<#field_type, String>
             {
                 use nekocat::aes_gcm_siv::aead::{Aead, KeyInit};
-                use rkyv::rancor::Error as RkyvError;
+                use nekocat::rkyv::rancor::Error as RkyvError;
 
                 let (key, nonce) = Self::#aes_256_gcm_siv_key_and_nonce_ga_ident(&nonce)?;
                 let decrypted = nekocat::aes_gcm_siv::Aes256GcmSiv::new(&key)
                     .decrypt(&nonce, ciphertext.as_ref())
                     .map_err(|err| err.to_string())?;
 
-                let archived = rkyv::access::<
-                    <#field_type as rkyv::Archive>::Archived,
+                let archived = nekocat::rkyv::access::<
+                    <#field_type as nekocat::rkyv::Archive>::Archived,
                     RkyvError
                 >(&decrypted[..])
                     .map_err(|e| e.to_string())?;
 
-                let decoded: #field_type = rkyv::deserialize::<#field_type, RkyvError>(archived)
+                let decoded: #field_type = nekocat::rkyv::deserialize::<#field_type, RkyvError>(archived)
                     .map_err(|e| e.to_string())?;
 
                 Ok(decoded)
